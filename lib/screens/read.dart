@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:rx_dart_streams_flutter/blocs/reader_bloc.dart';
 
 class Read extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var readerBloc = Provider.of<ReaderBloc>(context);
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -21,22 +24,28 @@ class Read extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(15.0),
           child: TabBarView(children: <Widget>[
-            Scaffold(body: tabBody('Standard Dart stream controller'),),
-            Scaffold(body: tabBody('Exactly like a normal broadcast StreamController with one exception: this class is both a Stream and Sink.'),),
-            Scaffold(body: tabBody('A special StreamController that captures the latest item that has been added to the controller, and emits that as the first item to any new listener.'),),
-            Scaffold(body: tabBody('A special StreamController that captures all of the items that have been added to the controller, and emits those as the first items to any new listener.'),),
+            Scaffold(body: tabBody(readerBloc.dartStream, 'Standard Dart stream controller'),),
+            Scaffold(body: tabBody(readerBloc.publishStream, 'Exactly like a normal broadcast StreamController with one exception: this class is both a Stream and Sink.'),),
+            Scaffold(body: tabBody(readerBloc.behaviorStream, 'A special StreamController that captures the latest item that has been added to the controller, and emits that as the first item to any new listener.'),),
+            Scaffold(body: tabBody(readerBloc.replayStream, 'A special StreamController that captures all of the items that have been added to the controller, and emits those as the first items to any new listener.'),),
           ],),
         )
       ),
     );
   }
 
-  tabBody(String desc) {
+  tabBody(Stream<String> stream, String desc) {
     return ListView(children:<Widget>[
       Text(desc),
       SizedBox(height: 20.0),
       Divider(),
-      Text('My Sonnet Text', style: GoogleFonts.imFellEnglish(textStyle: TextStyle(fontSize: 22.0)))
+      StreamBuilder<String>(
+        stream: stream,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return Text('Loading...');
+          return Text(snapshot.data, style: GoogleFonts.imFellEnglish(textStyle: TextStyle(fontSize: 22.0)));
+        }
+      )
     ],);
   }
 

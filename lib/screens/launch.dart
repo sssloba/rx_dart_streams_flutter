@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rx_dart_streams_flutter/screens/read.dart';
+import 'package:rx_dart_streams_flutter/blocs/reader_bloc.dart';
 
 class Launch extends StatefulWidget {
   @override
@@ -7,8 +9,18 @@ class Launch extends StatefulWidget {
 }
 
 class _LaunchState extends State<Launch> {
+  ReaderBloc readerBloc;
+
+  @override
+  void dispose() {
+    readerBloc.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    readerBloc = Provider.of<ReaderBloc>(context);
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -21,6 +33,8 @@ class _LaunchState extends State<Launch> {
               color: Colors.red,
               child: Text('Engage',style: TextStyle(color: Colors.white),),
               onPressed: () {
+                readerBloc.startReading();
+
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => Read()));
               })
           ],
